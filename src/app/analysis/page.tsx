@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Navbar from '@/components/Navbar';
 import { useTraining } from '@/contexts/TrainingContext';
 import { MovementPattern, TrainingRecord, Set } from '@/types/training';
-import { Chart } from 'react-chartjs-2';
+import dynamic from 'next/dynamic';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -20,17 +20,25 @@ import {
   TooltipItem
 } from 'chart.js';
 
-// 注册Chart.js组件
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
-  Title,
-  Tooltip,
-  Legend
+// 动态导入 Chart 组件
+const Chart = dynamic(
+  () => import('react-chartjs-2').then(mod => mod.Chart),
+  { ssr: false }
 );
+
+// 注册Chart.js组件
+if (typeof window !== 'undefined') {
+  ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    LineElement,
+    PointElement,
+    Title,
+    Tooltip,
+    Legend
+  );
+}
 
 // 时间范围类型
 type DateRange = {
@@ -710,128 +718,130 @@ export default function AnalysisPage() {
 
           {/* 内容区域 */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            {activeTab === 'sets' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(recentNearFailureSets).map(([pattern, count]) => (
-                  <div key={pattern} className="bg-gray-50 rounded-lg p-4">
-                    <h3 className="font-medium text-gray-700 mb-2">{pattern}</h3>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">短期组数</span>
-                      <span className="font-semibold text-blue-600">{count} 组</span>
-                    </div>
-                    <div className="flex justify-between items-center mt-1">
-                      <span className="text-sm text-gray-500">长期平均组数</span>
-                      <span className="font-semibold text-gray-600">
-                        {previousNearFailureSets[pattern]} 组/周
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center mt-1 mb-4">
-                      <span className="text-sm text-gray-500">短长期组数比</span>
-                      <span className={`font-semibold ${
-                        previousNearFailureSets[pattern] === 0 ? 'text-gray-600' :
-                        (count / previousNearFailureSets[pattern] > 1.25 ? 'text-red-600' :
-                        count / previousNearFailureSets[pattern] < 0.75 ? 'text-yellow-600' :
-                        'text-green-600')
-                      }`}>
-                        {previousNearFailureSets[pattern] === 0 ? '-' : 
-                          (count / previousNearFailureSets[pattern]).toFixed(1)}
-                      </span>
-                    </div>
-                    <div className="h-48 mt-4">
-                      <Chart 
-                        type="bar"
-                        options={getChartOptions(pattern as MovementPattern)} 
-                        data={getPatternWeeklyData(pattern as MovementPattern)} 
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {activeTab === 'weight' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(recentTotalWeight).map(([pattern, weight]) => (
-                  <div key={pattern} className="bg-gray-50 rounded-lg p-4">
-                    <h3 className="font-medium text-gray-700 mb-2">{pattern}</h3>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">短期负重</span>
-                      <span className="font-semibold text-blue-600">{weight.toFixed(1)} kg</span>
-                    </div>
-                    <div className="flex justify-between items-center mt-1">
-                      <span className="text-sm text-gray-500">长期平均负重</span>
-                      <span className="font-semibold text-gray-600">
-                        {previousTotalWeight[pattern].toFixed(1)} kg/周
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center mt-1 mb-4">
-                      <span className="text-sm text-gray-500">短长期负重比</span>
-                      <span className={`font-semibold ${
-                        previousTotalWeight[pattern] === 0 ? 'text-gray-600' :
-                        (weight / previousTotalWeight[pattern] > 1.25 ? 'text-red-600' :
-                        weight / previousTotalWeight[pattern] < 0.75 ? 'text-yellow-600' :
-                        'text-green-600')
-                      }`}>
-                        {previousTotalWeight[pattern] === 0 ? '-' : 
-                          (weight / previousTotalWeight[pattern]).toFixed(1)}
-                      </span>
-                    </div>
-                    <div className="h-48 mt-4">
-                      <Chart 
-                        type="bar"
-                        options={getWeightChartOptions(pattern as MovementPattern)} 
-                        data={getWeightWeeklyData(pattern as MovementPattern)} 
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {activeTab === 'maxWeight' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(recentMaxWeights).map(([exercise, { weight, pattern }]) => (
-                  <div key={exercise} className="bg-gray-50 rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="font-medium text-gray-700">{exercise}</h3>
-                      <span className="text-sm text-gray-500">{pattern}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">短期</span>
-                      <span className="font-semibold text-blue-600">{weight} kg</span>
-                    </div>
-                    <div className="flex justify-between items-center mt-1">
-                      <span className="text-sm text-gray-500">长期</span>
-                      <span className="font-semibold text-gray-600">
-                        {previousMaxWeights[exercise]?.weight || 0} kg
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center mt-1 mb-4">
-                      <span className="text-sm text-gray-500">变化</span>
-                      {previousMaxWeights[exercise]?.weight ? (
-                        <span className={`font-semibold ${
-                          weight / previousMaxWeights[exercise].weight > 1 ? 'text-green-600' : 
-                          weight / previousMaxWeights[exercise].weight < 1 ? 'text-red-600' : 
-                          'text-gray-600'
-                        }`}>
-                          {weight > previousMaxWeights[exercise].weight ? '+' : ''}
-                          {((weight / previousMaxWeights[exercise].weight - 1) * 100).toFixed(1)}%
+            <Suspense fallback={<div className="text-center py-4">加载中...</div>}>
+              {activeTab === 'sets' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {Object.entries(recentNearFailureSets).map(([pattern, count]) => (
+                    <div key={pattern} className="bg-gray-50 rounded-lg p-4">
+                      <h3 className="font-medium text-gray-700 mb-2">{pattern}</h3>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-500">短期组数</span>
+                        <span className="font-semibold text-blue-600">{count} 组</span>
+                      </div>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="text-sm text-gray-500">长期平均组数</span>
+                        <span className="font-semibold text-gray-600">
+                          {previousNearFailureSets[pattern]} 组/周
                         </span>
-                      ) : (
-                        <span className="font-semibold text-gray-600">-</span>
-                      )}
+                      </div>
+                      <div className="flex justify-between items-center mt-1 mb-4">
+                        <span className="text-sm text-gray-500">短长期组数比</span>
+                        <span className={`font-semibold ${
+                          previousNearFailureSets[pattern] === 0 ? 'text-gray-600' :
+                          (count / previousNearFailureSets[pattern] > 1.25 ? 'text-red-600' :
+                          count / previousNearFailureSets[pattern] < 0.75 ? 'text-yellow-600' :
+                          'text-green-600')
+                        }`}>
+                          {previousNearFailureSets[pattern] === 0 ? '-' : 
+                            (count / previousNearFailureSets[pattern]).toFixed(1)}
+                        </span>
+                      </div>
+                      <div className="h-48 mt-4">
+                        <Chart 
+                          type="bar"
+                          options={getChartOptions(pattern as MovementPattern)} 
+                          data={getPatternWeeklyData(pattern as MovementPattern)} 
+                        />
+                      </div>
                     </div>
-                    <div className="h-48 mt-4">
-                      <Chart 
-                        type="bar"
-                        options={getMaxWeightChartOptions(exercise)} 
-                        data={getMaxWeightWeeklyData(exercise, pattern as MovementPattern)} 
-                      />
+                  ))}
+                </div>
+              )}
+
+              {activeTab === 'weight' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {Object.entries(recentTotalWeight).map(([pattern, weight]) => (
+                    <div key={pattern} className="bg-gray-50 rounded-lg p-4">
+                      <h3 className="font-medium text-gray-700 mb-2">{pattern}</h3>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-500">短期负重</span>
+                        <span className="font-semibold text-blue-600">{weight.toFixed(1)} kg</span>
+                      </div>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="text-sm text-gray-500">长期平均负重</span>
+                        <span className="font-semibold text-gray-600">
+                          {previousTotalWeight[pattern].toFixed(1)} kg/周
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center mt-1 mb-4">
+                        <span className="text-sm text-gray-500">短长期负重比</span>
+                        <span className={`font-semibold ${
+                          previousTotalWeight[pattern] === 0 ? 'text-gray-600' :
+                          (weight / previousTotalWeight[pattern] > 1.25 ? 'text-red-600' :
+                          weight / previousTotalWeight[pattern] < 0.75 ? 'text-yellow-600' :
+                          'text-green-600')
+                        }`}>
+                          {previousTotalWeight[pattern] === 0 ? '-' : 
+                            (weight / previousTotalWeight[pattern]).toFixed(1)}
+                        </span>
+                      </div>
+                      <div className="h-48 mt-4">
+                        <Chart 
+                          type="bar"
+                          options={getWeightChartOptions(pattern as MovementPattern)} 
+                          data={getWeightWeeklyData(pattern as MovementPattern)} 
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+
+              {activeTab === 'maxWeight' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {Object.entries(recentMaxWeights).map(([exercise, { weight, pattern }]) => (
+                    <div key={exercise} className="bg-gray-50 rounded-lg p-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <h3 className="font-medium text-gray-700">{exercise}</h3>
+                        <span className="text-sm text-gray-500">{pattern}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-500">短期</span>
+                        <span className="font-semibold text-blue-600">{weight} kg</span>
+                      </div>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="text-sm text-gray-500">长期</span>
+                        <span className="font-semibold text-gray-600">
+                          {previousMaxWeights[exercise]?.weight || 0} kg
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center mt-1 mb-4">
+                        <span className="text-sm text-gray-500">变化</span>
+                        {previousMaxWeights[exercise]?.weight ? (
+                          <span className={`font-semibold ${
+                            weight / previousMaxWeights[exercise].weight > 1 ? 'text-green-600' : 
+                            weight / previousMaxWeights[exercise].weight < 1 ? 'text-red-600' : 
+                            'text-gray-600'
+                          }`}>
+                            {weight > previousMaxWeights[exercise].weight ? '+' : ''}
+                            {((weight / previousMaxWeights[exercise].weight - 1) * 100).toFixed(1)}%
+                          </span>
+                        ) : (
+                          <span className="font-semibold text-gray-600">-</span>
+                        )}
+                      </div>
+                      <div className="h-48 mt-4">
+                        <Chart 
+                          type="bar"
+                          options={getMaxWeightChartOptions(exercise)} 
+                          data={getMaxWeightWeeklyData(exercise, pattern as MovementPattern)} 
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Suspense>
           </div>
         </div>
       </div>
