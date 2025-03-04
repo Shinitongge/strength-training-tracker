@@ -11,6 +11,11 @@ const config = withPWA({
   eslint: {
     ignoreDuringBuilds: true,
   },
+  output: 'export',
+  images: {
+    unoptimized: true,
+  },
+  basePath: '/strength-training-tracker',
 });
 
 module.exports = config; 
