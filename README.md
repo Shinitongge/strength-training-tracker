@@ -27,7 +27,7 @@
 
 1. 克隆仓库：
 ```bash
-git clone [repository-url]
+git clone https://github.com/Shinitongge/Shinitongge-strength-training-tracker.git
 ```
 
 2. 安装依赖：
