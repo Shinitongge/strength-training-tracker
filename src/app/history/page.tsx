@@ -55,7 +55,7 @@ export default function HistoryPage() {
 
   // 格式化组数据显示
   const formatSets = (sets: TrainingRecord['sets']) => {
-    return sets.map((set, index) => 
+    return sets.map(set => 
       `${set.weight}kg×${set.reps}次${set.isNearFailure ? '(力竭)' : ''}`
     ).join('  ·  ');
   };

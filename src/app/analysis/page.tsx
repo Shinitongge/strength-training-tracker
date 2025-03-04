@@ -16,7 +16,8 @@ import {
   Tooltip,
   Legend,
   ChartData,
-  ChartOptions
+  ChartOptions,
+  TooltipItem
 } from 'chart.js';
 
 // 注册Chart.js组件
@@ -318,8 +319,8 @@ export default function AnalysisPage() {
       },
       tooltip: {
         callbacks: {
-          title: (items: any[]) => `${pattern} - ${items[0].label}`,
-          label: (context: any) => {
+          title: (items: TooltipItem<'bar' | 'line'>[]) => `${pattern} - ${items[0].label}`,
+          label: (context: TooltipItem<'bar' | 'line'>) => {
             if (context.dataset.yAxisID === 'y1') {
               return `短长期组数比: ${context.parsed.y.toFixed(1)}`;
             }
@@ -465,8 +466,8 @@ export default function AnalysisPage() {
       },
       tooltip: {
         callbacks: {
-          title: (items: any[]) => `${pattern} - ${items[0].label}`,
-          label: (context: any) => {
+          title: (items: TooltipItem<'bar' | 'line'>[]) => `${pattern} - ${items[0].label}`,
+          label: (context: TooltipItem<'bar' | 'line'>) => {
             if (context.dataset.yAxisID === 'y1') {
               return `短长期负重比: ${context.parsed.y.toFixed(1)}`;
             }
@@ -602,8 +603,8 @@ export default function AnalysisPage() {
       },
       tooltip: {
         callbacks: {
-          title: (items: any[]) => `${exercise} - ${items[0].label}`,
-          label: (context: any) => {
+          title: (items: TooltipItem<'bar' | 'line'>[]) => `${exercise} - ${items[0].label}`,
+          label: (context: TooltipItem<'bar' | 'line'>) => {
             if (context.dataset.label === '趋势线') {
               return `趋势: ${context.parsed.y.toFixed(1)} kg`;
             }
