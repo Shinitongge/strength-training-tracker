@@ -103,7 +103,15 @@ export default function HistoryPage() {
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-100">
           {/* 表头 */}
-          <div className="grid grid-cols-7 gap-4 p-4 border-b border-gray-100 bg-gray-50">
+          // 修改表格布局，使其在小屏幕上更好地响应
+          
+          // 表头部分 - 在移动端使用更简洁的布局
+          <div className="hidden md:grid md:grid-cols-7 gap-4 p-4 border-b border-gray-100 bg-gray-50">
+            // 保持原有的表头内容
+          </div>
+          
+          // 移动端专用表头 - 只显示最重要的信息
+          <div className="grid grid-cols-3 md:hidden gap-4 p-4 border-b border-gray-100 bg-gray-50">
             <div className="flex items-center">
               <input
                 type="checkbox"
@@ -118,35 +126,16 @@ export default function HistoryPage() {
                 className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-2 focus:ring-blue-200 transition-colors"
               />
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-gray-500">日期</span>
-              <button
-                onClick={toggleSortOrder}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all group"
-              >
-                <span>{sortOrder === 'asc' ? '最早' : '最新'}</span>
-                {sortOrder === 'asc' ? (
-                  <svg className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7l4-4m0 0l4 4m-4-4v18" />
-                  </svg>
-                ) : (
-                  <svg className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 17l-4 4m0 0l-4-4m4 4V3" />
-                  </svg>
-                )}
-              </button>
-            </div>
-            <div className="text-sm font-medium text-gray-500">动作名称</div>
-            <div className="text-sm font-medium text-gray-500">动作模式</div>
-            <div className="col-span-2 text-sm font-medium text-gray-500">训练详情</div>
-            <div className="text-sm font-medium text-gray-500">操作</div>
+            <div className="text-sm font-medium text-gray-500">训练信息</div>
+            <div className="text-sm font-medium text-gray-500 text-right">操作</div>
           </div>
-
-          {/* 训练记录列表 */}
+          
+          // 训练记录列表 - 在移动端使用卡片式布局而非表格
           <div className="divide-y divide-gray-100">
             {filteredRecords.map((record) => (
-              <div key={record.id} className="grid grid-cols-7 gap-4 p-4 hover:bg-gray-50 transition-colors">
-                <div className="flex items-center">
+              <div key={record.id} className="md:grid md:grid-cols-7 gap-4 p-4 hover:bg-gray-50 transition-colors">
+                {/* 桌面版布局 - 保持原样但在移动端隐藏 */}
+                <div className="md:block hidden flex items-center">
                   <input
                     type="checkbox"
                     checked={selectedRecords.includes(record.id)}
@@ -154,13 +143,40 @@ export default function HistoryPage() {
                     className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-2 focus:ring-blue-200 transition-colors"
                   />
                 </div>
-                <div className="text-sm text-gray-400">{record.date}</div>
-                <div className="text-sm font-medium text-gray-700">{record.exercise.name}</div>
-                <div className="text-sm text-gray-400">{record.exercise.pattern}</div>
-                <div className="col-span-2 text-sm text-gray-500 overflow-hidden overflow-ellipsis">
+                <div className="md:block hidden text-sm text-gray-400">{record.date}</div>
+                <div className="md:block hidden text-sm font-medium text-gray-700">{record.exercise.name}</div>
+                <div className="md:block hidden text-sm text-gray-400">{record.exercise.pattern}</div>
+                <div className="md:block hidden col-span-2 text-sm text-gray-500 overflow-hidden overflow-ellipsis">
                   {formatSets(record.sets)}
                 </div>
-                <div>
+                <div className="md:block hidden">
+                  <button
+                    onClick={() => {
+                      if (window.confirm('确定要删除这条记录吗？')) {
+                        deleteRecord(record.id);
+                      }
+                    }}
+                    className="text-sm text-red-500 hover:text-red-600 hover:underline focus:outline-none focus:ring-2 focus:ring-red-200 rounded px-2 py-1 transition-colors"
+                  >
+                    删除
+                  </button>
+                </div>
+                
+                {/* 移动端布局 - 卡片式设计 */}
+                <div className="flex md:hidden items-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedRecords.includes(record.id)}
+                    onChange={() => handleSelectRecord(record.id)}
+                    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-2 focus:ring-blue-200 transition-colors"
+                  />
+                </div>
+                <div className="flex-1 md:hidden">
+                  <div className="font-medium text-gray-700">{record.exercise.name}</div>
+                  <div className="text-xs text-gray-400 mt-1">{record.date} · {record.exercise.pattern}</div>
+                  <div className="text-xs text-gray-500 mt-2 truncate">{formatSets(record.sets)}</div>
+                </div>
+                <div className="md:hidden text-right">
                   <button
                     onClick={() => {
                       if (window.confirm('确定要删除这条记录吗？')) {
@@ -186,4 +202,4 @@ export default function HistoryPage() {
       </div>
     </main>
   );
-} 
+}
