@@ -57,9 +57,12 @@ export default function AnalysisPage() {
   const { records } = useTraining();
   const [weekCount, setWeekCount] = useState<number>(5);
   const [activeTab, setActiveTab] = useState<'sets' | 'weight' | 'maxWeight'>('sets');
-  // 使用本地时区的日期
+  
+  // 使用本地时区的当前日期
   const [currentDate] = useState<Date>(() => {
     const now = new Date();
+    const offset = now.getTimezoneOffset();
+    now.setMinutes(now.getMinutes() - offset); // 调整到本地时区
     return new Date(now.getFullYear(), now.getMonth(), now.getDate());
   });
 
@@ -74,9 +77,15 @@ export default function AnalysisPage() {
       endDate.setDate(currentDate.getDate() - i * 7);
       startDate.setDate(currentDate.getDate() - (i + 1) * 7);
       
+      // 确保日期字符串使用本地时区
+      const endStr = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000)
+        .toISOString().split('T')[0];
+      const startStr = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000)
+        .toISOString().split('T')[0];
+      
       ranges.push({
-        start: startDate.toISOString().split('T')[0],
-        end: endDate.toISOString().split('T')[0],
+        start: startStr,
+        end: endStr,
       });
     }
     
@@ -89,9 +98,12 @@ export default function AnalysisPage() {
     const start = new Date(currentDate);
     start.setDate(currentDate.getDate() - 7);
     
+    // 确保日期字符串使用本地时区
     return {
-      start: start.toISOString().split('T')[0],
-      end: end.toISOString().split('T')[0],
+      start: new Date(start.getTime() - start.getTimezoneOffset() * 60000)
+        .toISOString().split('T')[0],
+      end: new Date(end.getTime() - end.getTimezoneOffset() * 60000)
+        .toISOString().split('T')[0],
     };
   };
 
@@ -103,9 +115,12 @@ export default function AnalysisPage() {
     end.setDate(currentDate.getDate() - 8);
     start.setDate(currentDate.getDate() - 35);
     
+    // 确保日期字符串使用本地时区
     return {
-      start: start.toISOString().split('T')[0],
-      end: end.toISOString().split('T')[0],
+      start: new Date(start.getTime() - start.getTimezoneOffset() * 60000)
+        .toISOString().split('T')[0],
+      end: new Date(end.getTime() - end.getTimezoneOffset() * 60000)
+        .toISOString().split('T')[0],
     };
   };
 
