@@ -11,11 +11,14 @@ const config = withPWA({
   eslint: {
     ignoreDuringBuilds: true,
   },
-  output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
   images: {
     unoptimized: true,
   },
-  basePath: process.env.NODE_ENV === 'production' ? '/strength-training-tracker' : '',
+  // 只在 GitHub Pages 部署时使用这些配置
+  ...(process.env.GITHUB_PAGES === 'true' ? {
+    output: 'export',
+    basePath: '/strength-training-tracker'
+  } : {})
 });
 
 module.exports = config; 

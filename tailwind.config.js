@@ -9,4 +9,14 @@ module.exports = {
     extend: {},
   },
   plugins: [],
+  future: {
+    removeDeprecatedGapUtilities: true,
+    purgeLayersByDefault: true,
+  },
+  purge: {
+    enabled: process.env.NODE_ENV === 'production',
+    content: [
+      './src/**/*.{js,ts,jsx,tsx,mdx}',
+    ],
+  }
 } 
