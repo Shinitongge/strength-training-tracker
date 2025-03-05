@@ -103,15 +103,7 @@ export default function HistoryPage() {
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-100">
           {/* 表头 */}
-          // 修改表格布局，使其在小屏幕上更好地响应
-          
-          // 表头部分 - 在移动端使用更简洁的布局
-          <div className="hidden md:grid md:grid-cols-7 gap-4 p-4 border-b border-gray-100 bg-gray-50">
-            // 保持原有的表头内容
-          </div>
-          
-          // 移动端专用表头 - 只显示最重要的信息
-          <div className="grid grid-cols-3 md:hidden gap-4 p-4 border-b border-gray-100 bg-gray-50">
+          <div className="grid grid-cols-7 gap-1 sm:gap-4 p-2 sm:p-4 border-b border-gray-100 bg-gray-50">
             <div className="flex items-center">
               <input
                 type="checkbox"
@@ -123,67 +115,49 @@ export default function HistoryPage() {
                     setSelectedRecords(filteredRecords.map(r => r.id));
                   }
                 }}
-                className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-2 focus:ring-blue-200 transition-colors"
+                className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 rounded border-gray-300 focus:ring-2 focus:ring-blue-200 transition-colors"
               />
             </div>
-            <div className="text-sm font-medium text-gray-500">训练信息</div>
-            <div className="text-sm font-medium text-gray-500 text-right">操作</div>
+            <div className="text-xs sm:text-sm font-medium text-gray-500">
+              <button 
+                onClick={toggleSortOrder} 
+                className="flex items-center hover:text-blue-600 transition-colors"
+              >
+                日期 {sortOrder === 'asc' ? '↑' : '↓'}
+              </button>
+            </div>
+            <div className="text-xs sm:text-sm font-medium text-gray-500">动作名称</div>
+            <div className="text-xs sm:text-sm font-medium text-gray-500">动作模式</div>
+            <div className="col-span-2 text-xs sm:text-sm font-medium text-gray-500">训练详情</div>
+            <div className="text-xs sm:text-sm font-medium text-gray-500">操作</div>
           </div>
-          
-          // 训练记录列表 - 在移动端使用卡片式布局而非表格
+
+          {/* 训练记录列表 */}
           <div className="divide-y divide-gray-100">
             {filteredRecords.map((record) => (
-              <div key={record.id} className="md:grid md:grid-cols-7 gap-4 p-4 hover:bg-gray-50 transition-colors">
-                {/* 桌面版布局 - 保持原样但在移动端隐藏 */}
-                <div className="md:block hidden flex items-center">
+              <div key={record.id} className="grid grid-cols-7 gap-1 sm:gap-4 p-2 sm:p-4 hover:bg-gray-50 transition-colors">
+                <div className="flex items-center">
                   <input
                     type="checkbox"
                     checked={selectedRecords.includes(record.id)}
                     onChange={() => handleSelectRecord(record.id)}
-                    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-2 focus:ring-blue-200 transition-colors"
+                    className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 rounded border-gray-300 focus:ring-2 focus:ring-blue-200 transition-colors"
                   />
                 </div>
-                <div className="md:block hidden text-sm text-gray-400">{record.date}</div>
-                <div className="md:block hidden text-sm font-medium text-gray-700">{record.exercise.name}</div>
-                <div className="md:block hidden text-sm text-gray-400">{record.exercise.pattern}</div>
-                <div className="md:block hidden col-span-2 text-sm text-gray-500 overflow-hidden overflow-ellipsis">
+                <div className="text-xs sm:text-sm text-gray-400">{record.date}</div>
+                <div className="text-xs sm:text-sm font-medium text-gray-700 truncate">{record.exercise.name}</div>
+                <div className="text-xs sm:text-sm text-gray-400 truncate">{record.exercise.pattern}</div>
+                <div className="col-span-2 text-xs sm:text-sm text-gray-500 overflow-hidden text-ellipsis whitespace-nowrap">
                   {formatSets(record.sets)}
                 </div>
-                <div className="md:block hidden">
+                <div>
                   <button
                     onClick={() => {
                       if (window.confirm('确定要删除这条记录吗？')) {
                         deleteRecord(record.id);
                       }
                     }}
-                    className="text-sm text-red-500 hover:text-red-600 hover:underline focus:outline-none focus:ring-2 focus:ring-red-200 rounded px-2 py-1 transition-colors"
-                  >
-                    删除
-                  </button>
-                </div>
-                
-                {/* 移动端布局 - 卡片式设计 */}
-                <div className="flex md:hidden items-center">
-                  <input
-                    type="checkbox"
-                    checked={selectedRecords.includes(record.id)}
-                    onChange={() => handleSelectRecord(record.id)}
-                    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-2 focus:ring-blue-200 transition-colors"
-                  />
-                </div>
-                <div className="flex-1 md:hidden">
-                  <div className="font-medium text-gray-700">{record.exercise.name}</div>
-                  <div className="text-xs text-gray-400 mt-1">{record.date} · {record.exercise.pattern}</div>
-                  <div className="text-xs text-gray-500 mt-2 truncate">{formatSets(record.sets)}</div>
-                </div>
-                <div className="md:hidden text-right">
-                  <button
-                    onClick={() => {
-                      if (window.confirm('确定要删除这条记录吗？')) {
-                        deleteRecord(record.id);
-                      }
-                    }}
-                    className="text-sm text-red-500 hover:text-red-600 hover:underline focus:outline-none focus:ring-2 focus:ring-red-200 rounded px-2 py-1 transition-colors"
+                    className="text-xs sm:text-sm text-red-500 hover:text-red-600 hover:underline focus:outline-none focus:ring-2 focus:ring-red-200 rounded px-1 sm:px-2 py-0.5 sm:py-1 transition-colors"
                   >
                     删除
                   </button>
