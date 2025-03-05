@@ -16,12 +16,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh">
-      <body className={inter.className}>
+    <html lang="zh" className="h-full">
+      <body className={`${inter.className} min-h-screen bg-gray-50`}>
         <TrainingProvider>
           {children}
         </TrainingProvider>
       </body>
     </html>
   );
-}
+} 

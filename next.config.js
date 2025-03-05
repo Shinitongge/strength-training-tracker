@@ -11,11 +11,11 @@ const config = withPWA({
   eslint: {
     ignoreDuringBuilds: true,
   },
-  output: 'export',
+  output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
   images: {
     unoptimized: true,
   },
-  basePath: '/strength-training-tracker',
+  basePath: process.env.NODE_ENV === 'production' ? '/strength-training-tracker' : '',
 });
 
 module.exports = config; 
